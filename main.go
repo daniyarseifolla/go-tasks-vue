@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "finance-tracker/internal/cli"
 
 func main() {
-	fmt.Println("go-tasks-vue")
+	cli.Run()
 }

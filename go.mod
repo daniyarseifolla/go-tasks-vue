@@ -1,3 +1,3 @@
-module github.com/dannywayne/go-tasks-vue
+module finance-tracker
 
 go 1.25.5
