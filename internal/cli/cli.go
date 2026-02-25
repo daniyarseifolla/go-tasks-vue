@@ -11,6 +11,7 @@ import (
 
 func Run() {
 	reader := bufio.NewReader(os.Stdin)
+	manager := model.NewFinanceManager()
 
 	fmt.Println("=== Personal Finance Tracker ===")
 	fmt.Println()
@@ -18,6 +19,9 @@ func Run() {
 	for {
 		fmt.Println("Choose an action:")
 		fmt.Println("1. Add transaction")
+		fmt.Println("2. Show all transactions")
+		fmt.Println("3. Find transaction by ID")
+		fmt.Println("4. Show balance")
 		fmt.Println("0. Exit")
 		fmt.Print("> ")
 
@@ -26,15 +30,13 @@ func Run() {
 
 		switch input {
 		case "1":
-			t, err := inputTransaction(reader)
-			if err != nil {
-				fmt.Printf("Error: %s\n\n", err)
-				continue
-			}
-			fmt.Println()
-			fmt.Println("Transaction created:")
-			printTransaction(t)
-			fmt.Println()
+			handleAddTransaction(reader, manager)
+		case "2":
+			handleShowAll(manager)
+		case "3":
+			handleFindByID(reader, manager)
+		case "4":
+			handleShowBalance(manager)
 		case "0":
 			fmt.Println("Goodbye!")
 			return
@@ -43,6 +45,62 @@ func Run() {
 			fmt.Println()
 		}
 	}
+}
+
+func handleAddTransaction(reader *bufio.Reader, manager *model.FinanceManager) {
+	t, err := inputTransaction(reader)
+	if err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+		return
+	}
+
+	t = manager.AddTransaction(t)
+	fmt.Printf("\nTransaction #%d created:\n", t.ID)
+	printTransaction(t)
+	fmt.Println()
+}
+
+func handleShowAll(manager *model.FinanceManager) {
+	transactions := manager.GetAllTransactions()
+	if len(transactions) == 0 {
+		fmt.Println("No transactions yet.")
+		fmt.Println()
+		return
+	}
+
+	fmt.Printf("All transactions (%d):\n", len(transactions))
+	for _, t := range transactions {
+		fmt.Printf("\n  #%d\n", t.ID)
+		printTransaction(t)
+	}
+	fmt.Println()
+}
+
+func handleFindByID(reader *bufio.Reader, manager *model.FinanceManager) {
+	fmt.Print("Enter transaction ID: ")
+	idStr, _ := reader.ReadString('\n')
+	idStr = strings.TrimSpace(idStr)
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fmt.Printf("Error: invalid ID: %s\n\n", idStr)
+		return
+	}
+
+	t, err := manager.GetTransactionByID(id)
+	if err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+		return
+	}
+
+	fmt.Printf("\nTransaction #%d:\n", t.ID)
+	printTransaction(*t)
+	fmt.Println()
+}
+
+func handleShowBalance(manager *model.FinanceManager) {
+	balance := manager.CalculateBalance()
+	fmt.Printf("Current balance: %.2f\n\n", balance)
 }
 
 func inputTransaction(reader *bufio.Reader) (model.Transaction, error) {
