@@ -23,6 +23,7 @@ func Run() {
 		fmt.Println("3. Find transaction by ID")
 		fmt.Println("4. Show balance")
 		fmt.Println("5. Filter transactions")
+		fmt.Println("6. Generate report")
 		fmt.Println("0. Exit")
 		fmt.Print("> ")
 
@@ -40,6 +41,8 @@ func Run() {
 			handleShowBalance(manager)
 		case "5":
 			handleFilter(reader, manager)
+		case "6":
+			handleReport(reader, manager)
 		case "0":
 			fmt.Println("Goodbye!")
 			return
@@ -104,6 +107,35 @@ func handleFindByID(reader *bufio.Reader, manager *model.FinanceManager) {
 func handleShowBalance(manager *model.FinanceManager) {
 	balance := manager.CalculateBalance()
 	fmt.Printf("Current balance: %.2f\n\n", balance)
+}
+
+func handleReport(reader *bufio.Reader, manager *model.FinanceManager) {
+	fmt.Println("Report type:")
+	fmt.Println("1. By category")
+	fmt.Println("2. By month")
+	fmt.Print("> ")
+
+	choice, _ := reader.ReadString('\n')
+	choice = strings.TrimSpace(choice)
+
+	var reporter model.Reporter
+
+	switch choice {
+	case "1":
+		reporter = model.CategoryReport{}
+	case "2":
+		reporter = model.MonthlyReport{}
+	default:
+		fmt.Println("Invalid choice.")
+		fmt.Println()
+		return
+	}
+
+	transactions := manager.GetAllTransactions()
+	report := model.GenerateReport(reporter, transactions)
+	fmt.Println()
+	fmt.Print(report)
+	fmt.Println()
 }
 
 func handleFilter(reader *bufio.Reader, manager *model.FinanceManager) {
