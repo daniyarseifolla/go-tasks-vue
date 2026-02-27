@@ -22,6 +22,7 @@ func Run() {
 		fmt.Println("2. Show all transactions")
 		fmt.Println("3. Find transaction by ID")
 		fmt.Println("4. Show balance")
+		fmt.Println("5. Filter transactions")
 		fmt.Println("0. Exit")
 		fmt.Print("> ")
 
@@ -37,6 +38,8 @@ func Run() {
 			handleFindByID(reader, manager)
 		case "4":
 			handleShowBalance(manager)
+		case "5":
+			handleFilter(reader, manager)
 		case "0":
 			fmt.Println("Goodbye!")
 			return
@@ -101,6 +104,68 @@ func handleFindByID(reader *bufio.Reader, manager *model.FinanceManager) {
 func handleShowBalance(manager *model.FinanceManager) {
 	balance := manager.CalculateBalance()
 	fmt.Printf("Current balance: %.2f\n\n", balance)
+}
+
+func handleFilter(reader *bufio.Reader, manager *model.FinanceManager) {
+	fmt.Println("Filter by:")
+	fmt.Println("1. Type")
+	fmt.Println("2. Category")
+	fmt.Println("3. Date range")
+	fmt.Print("> ")
+
+	choice, _ := reader.ReadString('\n')
+	choice = strings.TrimSpace(choice)
+
+	var filtered []model.Transaction
+
+	switch choice {
+	case "1":
+		fmt.Print("Enter type (income/expense): ")
+		typeStr, _ := reader.ReadString('\n')
+		typeStr = strings.TrimSpace(typeStr)
+
+		tType, err := model.ParseTransactionType(typeStr)
+		if err != nil {
+			fmt.Printf("Error: %s\n\n", err)
+			return
+		}
+		filtered = manager.GetTransactionsByType(tType)
+
+	case "2":
+		fmt.Print("Enter category: ")
+		category, _ := reader.ReadString('\n')
+		category = strings.TrimSpace(category)
+		filtered = manager.GetTransactionsByCategory(category)
+
+	case "3":
+		fmt.Print("Enter start date (YYYY-MM-DD): ")
+		from, _ := reader.ReadString('\n')
+		from = strings.TrimSpace(from)
+
+		fmt.Print("Enter end date (YYYY-MM-DD): ")
+		to, _ := reader.ReadString('\n')
+		to = strings.TrimSpace(to)
+
+		filtered = manager.GetTransactionsInDateRange(from, to)
+
+	default:
+		fmt.Println("Invalid choice.")
+		fmt.Println()
+		return
+	}
+
+	if len(filtered) == 0 {
+		fmt.Println("No transactions found.")
+		fmt.Println()
+		return
+	}
+
+	fmt.Printf("\nFound %d transaction(s), total: %.2f\n", len(filtered), model.SumTransactions(filtered))
+	for _, t := range filtered {
+		fmt.Printf("\n  #%d\n", t.ID)
+		printTransaction(t)
+	}
+	fmt.Println()
 }
 
 func inputTransaction(reader *bufio.Reader) (model.Transaction, error) {

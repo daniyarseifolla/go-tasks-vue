@@ -46,3 +46,41 @@ func (fm *FinanceManager) CalculateBalance() float64 {
 	}
 	return balance
 }
+
+func (fm *FinanceManager) GetTransactionsByType(t TransactionType) []Transaction {
+	var result []Transaction
+	for _, tr := range fm.transactions {
+		if tr.Type == t {
+			result = append(result, tr)
+		}
+	}
+	return result
+}
+
+func (fm *FinanceManager) GetTransactionsByCategory(category string) []Transaction {
+	var result []Transaction
+	for _, t := range fm.transactions {
+		if t.Category == category {
+			result = append(result, t)
+		}
+	}
+	return result
+}
+
+func (fm *FinanceManager) GetTransactionsInDateRange(from, to string) []Transaction {
+	var result []Transaction
+	for _, t := range fm.transactions {
+		if t.Date >= from && t.Date <= to {
+			result = append(result, t)
+		}
+	}
+	return result
+}
+
+func SumTransactions(transactions []Transaction) float64 {
+	var total float64
+	for _, t := range transactions {
+		total += t.Amount
+	}
+	return total
+}
