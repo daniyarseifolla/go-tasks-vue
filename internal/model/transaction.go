@@ -1,9 +1,6 @@
 package model
 
-import (
-	"errors"
-	"time"
-)
+import "time"
 
 type TransactionType string
 
@@ -19,7 +16,7 @@ func ParseTransactionType(s string) (TransactionType, error) {
 	case string(Expense):
 		return Expense, nil
 	default:
-		return "", errors.New("type must be 'income' or 'expense'")
+		return "", ErrInvalidTransactionType
 	}
 }
 
@@ -33,11 +30,11 @@ type Transaction struct {
 
 func NewTransaction(amount float64, category string, t TransactionType) (Transaction, error) {
 	if amount < 0 {
-		return Transaction{}, errors.New("amount cannot be negative")
+		return Transaction{}, ErrNegativeAmount
 	}
 
 	if category == "" {
-		return Transaction{}, errors.New("category cannot be empty")
+		return Transaction{}, ErrEmptyCategory
 	}
 
 	return Transaction{

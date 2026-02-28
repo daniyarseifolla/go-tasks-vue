@@ -1,6 +1,5 @@
 package model
 
-import "fmt"
 
 type FinanceManager struct {
 	transactions []Transaction
@@ -31,7 +30,7 @@ func (fm *FinanceManager) GetTransactionByID(id int) (*Transaction, error) {
 			return &fm.transactions[i], nil
 		}
 	}
-	return nil, fmt.Errorf("transaction with ID %d not found", id)
+	return nil, &ErrTransactionNotFound{ID: id}
 }
 
 func (fm *FinanceManager) CalculateBalance() float64 {

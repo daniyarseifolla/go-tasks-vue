@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"finance-tracker/internal/model"
 	"fmt"
 	"os"
@@ -56,7 +57,17 @@ func Run() {
 func handleAddTransaction(reader *bufio.Reader, manager *model.FinanceManager) {
 	t, err := inputTransaction(reader)
 	if err != nil {
-		fmt.Printf("Error: %s\n\n", err)
+		switch {
+		case errors.Is(err, model.ErrInvalidTransactionType):
+			fmt.Println("Invalid type. Please enter 'income' or 'expense'.")
+		case errors.Is(err, model.ErrNegativeAmount):
+			fmt.Println("Amount must be a positive number.")
+		case errors.Is(err, model.ErrEmptyCategory):
+			fmt.Println("Category cannot be empty.")
+		default:
+			fmt.Printf("Error: %s\n", err)
+		}
+		fmt.Println()
 		return
 	}
 
@@ -95,7 +106,12 @@ func handleFindByID(reader *bufio.Reader, manager *model.FinanceManager) {
 
 	t, err := manager.GetTransactionByID(id)
 	if err != nil {
-		fmt.Printf("Error: %s\n\n", err)
+		var notFound *model.ErrTransactionNotFound
+		if errors.As(err, &notFound) {
+			fmt.Printf("Transaction #%d does not exist.\n\n", notFound.ID)
+		} else {
+			fmt.Printf("Error: %s\n\n", err)
+		}
 		return
 	}
 
