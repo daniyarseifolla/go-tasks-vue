@@ -1,5 +1,10 @@
 package model
 
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
 
 type FinanceManager struct {
 	transactions []Transaction
@@ -74,6 +79,43 @@ func (fm *FinanceManager) GetTransactionsInDateRange(from, to string) []Transact
 		}
 	}
 	return result
+}
+
+func (fm *FinanceManager) SaveToFile(filename string) error {
+	data, err := json.MarshalIndent(fm.transactions, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal transactions: %w", err)
+	}
+
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	return nil
+}
+
+func (fm *FinanceManager) LoadFromFile(filename string) error {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	var transactions []Transaction
+	if err := json.Unmarshal(data, &transactions); err != nil {
+		return fmt.Errorf("failed to parse transactions: %w", err)
+	}
+
+	fm.transactions = transactions
+
+	maxID := 0
+	for _, t := range fm.transactions {
+		if t.ID > maxID {
+			maxID = t.ID
+		}
+	}
+	fm.nextID = maxID + 1
+
+	return nil
 }
 
 func SumTransactions(transactions []Transaction) float64 {

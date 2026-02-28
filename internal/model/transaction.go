@@ -21,11 +21,11 @@ func ParseTransactionType(s string) (TransactionType, error) {
 }
 
 type Transaction struct {
-	ID       int
-	Amount   float64
-	Category string
-	Date     string
-	Type     TransactionType
+	ID       int             `json:"id"`
+	Amount   float64         `json:"amount"`
+	Category string          `json:"category"`
+	Date     string          `json:"date"`
+	Type     TransactionType `json:"type"`
 }
 
 func NewTransaction(amount float64, category string, t TransactionType) (Transaction, error) {

@@ -43,3 +43,6 @@ Thumbs.db
 tmp/
 *.tmp
 *.log
+
+# Data files
+transactions.json

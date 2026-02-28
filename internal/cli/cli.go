@@ -25,7 +25,9 @@ func Run() {
 		fmt.Println("4. Show balance")
 		fmt.Println("5. Filter transactions")
 		fmt.Println("6. Generate report")
-		fmt.Println("0. Exit")
+		fmt.Println("7. Save to file")
+		fmt.Println("8. Load from file")
+		fmt.Println("9. Exit")
 		fmt.Print("> ")
 
 		input, _ := reader.ReadString('\n')
@@ -44,7 +46,11 @@ func Run() {
 			handleFilter(reader, manager)
 		case "6":
 			handleReport(reader, manager)
-		case "0":
+		case "7":
+			handleSave(reader, manager)
+		case "8":
+			handleLoad(reader, manager)
+		case "9":
 			fmt.Println("Goodbye!")
 			return
 		default:
@@ -123,6 +129,40 @@ func handleFindByID(reader *bufio.Reader, manager *model.FinanceManager) {
 func handleShowBalance(manager *model.FinanceManager) {
 	balance := manager.CalculateBalance()
 	fmt.Printf("Current balance: %.2f\n\n", balance)
+}
+
+func handleSave(reader *bufio.Reader, manager *model.FinanceManager) {
+	fmt.Print("Enter filename (default: transactions.json): ")
+	filename, _ := reader.ReadString('\n')
+	filename = strings.TrimSpace(filename)
+
+	if filename == "" {
+		filename = "transactions.json"
+	}
+
+	if err := manager.SaveToFile(filename); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+		return
+	}
+
+	fmt.Printf("Saved to %s\n\n", filename)
+}
+
+func handleLoad(reader *bufio.Reader, manager *model.FinanceManager) {
+	fmt.Print("Enter filename (default: transactions.json): ")
+	filename, _ := reader.ReadString('\n')
+	filename = strings.TrimSpace(filename)
+
+	if filename == "" {
+		filename = "transactions.json"
+	}
+
+	if err := manager.LoadFromFile(filename); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+		return
+	}
+
+	fmt.Printf("Loaded %d transaction(s) from %s\n\n", len(manager.GetAllTransactions()), filename)
 }
 
 func handleReport(reader *bufio.Reader, manager *model.FinanceManager) {
