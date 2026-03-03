@@ -8,7 +8,7 @@ proto-gen:
 		api/proto/user.proto
 
 build:
-	go build -o bin/server .
+	go build -o bin/server ./cmd
 
 run: build
 	./bin/server
