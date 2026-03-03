@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	grpcHandler "user-service/internal/handler/grpc"
 	"user-service/internal/service"
@@ -14,6 +15,7 @@ import (
 func startGRPC(svc *service.UserService) *grpc.Server {
 	srv := grpc.NewServer()
 	pb.RegisterUserServiceServer(srv, grpcHandler.NewUserHandler(svc))
+	reflection.Register(srv)
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
