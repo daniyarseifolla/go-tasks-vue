@@ -9,7 +9,7 @@ import (
 
 	"user-service/internal/model"
 	"user-service/internal/service"
-	"user-service/pkg/pb"
+	"user-service/gen/pb"
 )
 
 type UserHandler struct {

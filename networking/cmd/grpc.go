@@ -9,7 +9,7 @@ import (
 
 	grpcHandler "user-service/internal/handler/grpc"
 	"user-service/internal/service"
-	"user-service/pkg/pb"
+	"user-service/gen/pb"
 )
 
 func startGRPC(svc *service.UserService) *grpc.Server {
